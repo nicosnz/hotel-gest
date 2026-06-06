@@ -7,32 +7,45 @@ class ReservaHuespedInline(admin.TabularInline):
 class ReservaServicioInline(admin.TabularInline):
     model=ReservaServicio
     extra=0
+
+class PagosInline(admin.TabularInline):
+    model=Pagos
+    extra=1 
 @admin.register(Habitaciones)
 class HabitacionesAdmin(admin.ModelAdmin):
-    pass
+    list_display=('numero','piso','tipo_habitacion','estado')
+    search_fields=('numero',)
+    
 @admin.register(TiposHabitaciones)
 class TipoHabitacionesAdmin(admin.ModelAdmin):
-    pass
+    list_display=('nombre','descripcion','capacidad')
+
 @admin.register(Empleados)
 class EmpleadosAdmin(admin.ModelAdmin):
-    pass
+    list_display=('nombre','apellido','correo','telefono','activo','rol')
+    search_fields=('nombre','apellido')
+    
 @admin.register(Roles)
 class RolesAdmin(admin.ModelAdmin):
     pass
 @admin.register(Huespedes)
 class HuespedesAdmin(admin.ModelAdmin):
-    pass
+    inlines=[ReservaHuespedInline]
+    list_display=('nombre','apellido','correo','telefono','documento_identidad','fecha_registro')
+    search_fields=('nombre','apellido')
 @admin.register(Reservas)
 class ReservasAdmin(admin.ModelAdmin):
-    inlines=[ReservaHuespedInline,ReservaServicioInline]
+    list_display=('habitacion','fecha_reserva','fecha_checkin_esperado','fecha_checkout_esperado','estado')
+    inlines=[ReservaHuespedInline,ReservaServicioInline,PagosInline]
+    list_filter=('estado','habitacion')
 
 @admin.register(Servicios)
 class ServiciosAdmin(admin.ModelAdmin):
-    pass
+    list_display=('nombre','descripcion','precio')
 
 @admin.register(Pagos)
 class PagosAdmin(admin.ModelAdmin):
-    pass
+    list_display=('reserva','concepto','monto','fecha_pago')
 @admin.register(Mantenimientos)
 class MantenimientosAdmin(admin.ModelAdmin):
-    pass
+    list_display=('habitacion','empleado','fecha_inicio','fecha_fin','estado')

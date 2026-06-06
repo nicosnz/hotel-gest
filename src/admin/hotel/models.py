@@ -25,6 +25,7 @@ class Roles(UUIDMixin,TimeStampedMixin):
         db_table='"content"."roles"'
         verbose_name="Rol"
         verbose_name_plural="Roles"
+        
 class Empleados(UUIDMixin,TimeStampedMixin):
     nombre=models.CharField(max_length=100,db_column="nombre",null=False)
     apellido=models.CharField(max_length=100,db_column="apellido",null=False)
@@ -139,7 +140,7 @@ class Reservas(UUIDMixin,TimeStampedMixin):
         related_name="reservas"
     )
     def __str__(self):
-        return f"Reserva {self.id}"
+        return f"Reservado: {self.fecha_reserva}, para: {self.fecha_checkin_esperado} - {self.fecha_checkout_esperado}"
     class Meta:
         managed=False
         db_table='"content"."reservas"'
@@ -176,7 +177,7 @@ class ReservaHuesped(UUIDMixin,TimeStampedMixin):
         
 
     def __str__(self):
-        return f"{self.reserva_id} - {self.huesped_id}"
+        return f"{self.huesped.nombre} - {self.reserva.habitacion}"
     
 class Pagos(UUIDMixin,TimeStampedMixin):
 
