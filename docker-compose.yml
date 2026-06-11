@@ -30,6 +30,8 @@ services:
     networks:
       - hotel_private
     restart: always
+    expose:
+      - "6379"
   admin:
     build: ./src/admin
     expose:
