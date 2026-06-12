@@ -5,7 +5,10 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
+from sqlmodel import select
 
+from models import Habitacion
 from repositories import HabitacionRepository, ReservaRepository
 from services.habitaciones.habitacionesDisponibles import DisponibilidadResultadoDTO, HabitacionService
 from db.postgres import get_db
@@ -16,6 +19,16 @@ router = APIRouter()
 # ---------------------------------------------------------------------------
 # Schemas
 # ---------------------------------------------------------------------------
+
+class HabitacionResponse(BaseModel):
+    id: UUID
+    numero: str
+    piso: int
+    tipo: str
+    capacidad: int
+    precio_por_noche: Decimal
+    estado: str
+
 
 class HabitacionDisponibleResponse(BaseModel):
     id: UUID
@@ -89,3 +102,29 @@ async def consultar_disponibilidad(
         ],
         mensaje=resultado.mensaje,
     )
+
+
+@router.get(
+    "/",
+    response_model=list[HabitacionResponse],
+    status_code=status.HTTP_200_OK,
+)
+async def listar_habitaciones(
+    session: AsyncSession = Depends(get_db),
+) -> list[HabitacionResponse]:
+    result = await session.execute(
+        select(Habitacion).options(selectinload(Habitacion.tipo_habitacion))
+    )
+    habitaciones = result.scalars().all()
+    return [
+        HabitacionResponse(
+            id=h.id,
+            numero=h.numero,
+            piso=h.piso,
+            tipo=h.tipo_habitacion.nombre if h.tipo_habitacion else "—",
+            capacidad=h.tipo_habitacion.capacidad if h.tipo_habitacion else 0,
+            precio_por_noche=h.tipo_habitacion.precio_por_noche if h.tipo_habitacion else 0,
+            estado=h.estado,
+        )
+        for h in habitaciones
+    ]

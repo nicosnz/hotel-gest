@@ -6,6 +6,7 @@ from sqlalchemy.orm import selectinload
 from sqlmodel import select
 
 from models import (
+    Habitacion,
     Reserva,
     ReservaHuesped,
     ReservaServicio,
@@ -38,9 +39,19 @@ class ReservaRepository(BaseRepository[Reserva]):
         )
         return result.scalar_one_or_none()
 
+    async def get_by_id_with_habitacion(self, reserva_id: uuid.UUID) -> Reserva | None:
+        result = await self.session.execute(
+            select(Reserva)
+            .options(
+                selectinload(Reserva.habitacion).selectinload(Habitacion.tipo_habitacion)
+            )
+            .where(Reserva.id == reserva_id)
+        )
+        return result.scalar_one_or_none()
+
     async def get_by_estado(self, estado: EstadoReserva) -> list[Reserva]:
         result = await self.session.execute(
-            select(Reserva).where(Reserva.estado == estado)
+            select(Reserva).where(Reserva.estado == estado.value)
         )
         return list(result.scalars().all())
 
@@ -58,7 +69,7 @@ class ReservaRepository(BaseRepository[Reserva]):
                 Reserva.fecha_checkin_esperado < fecha_fin,
                 Reserva.fecha_checkout_esperado > fecha_inicio,
                 Reserva.estado.notin_(  # type: ignore[attr-defined]
-                    [EstadoReserva.CANCELADA, EstadoReserva.FINALIZADA]
+                    [EstadoReserva.CANCELADA.value, EstadoReserva.FINALIZADA.value]
                 ),
             )
         )

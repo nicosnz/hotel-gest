@@ -57,7 +57,7 @@ class ConsumoService:
         if reserva.estado != EstadoReserva.CHECKIN:
             raise ValueError(
                 "No existe una estadía activa para esta reserva. "
-                f"Estado actual: {reserva.estado.value}."
+                f"Estado actual: {reserva.estado}."
             )
 
         # ------------------------------------------------------------------

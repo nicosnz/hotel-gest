@@ -37,7 +37,7 @@ class CheckinService:
         if reserva.estado != EstadoReserva.CONFIRMADA:
             raise ValueError(
                 f"La reserva no está en estado CONFIRMADA. "
-                f"Estado actual: {reserva.estado.value}."
+                f"Estado actual: {reserva.estado}."
             )
 
         
@@ -50,7 +50,7 @@ class CheckinService:
         
         fecha_checkin_real = datetime.utcnow()
         await self._reserva_repo.update(reserva, {
-            "estado": EstadoReserva.CHECKIN,
+            "estado": EstadoReserva.CHECKIN.value,
             "fecha_checkin_real": fecha_checkin_real,
         })
 

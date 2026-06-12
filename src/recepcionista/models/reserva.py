@@ -2,6 +2,7 @@ import uuid
 from datetime import date, datetime
 from typing import TYPE_CHECKING, List, Optional
 
+from sqlalchemy import Column, String
 from sqlmodel import Field, Relationship, SQLModel
 
 from models.enums import EstadoReserva
@@ -20,7 +21,7 @@ class ReservaBase(SQLModel):
     fecha_checkout_esperado: date
     fecha_checkin_real: Optional[datetime] = Field(default=None)
     fecha_checkout_real: Optional[datetime]= Field(default=None)
-    estado: EstadoReserva
+    estado: EstadoReserva = Field(sa_column=Column(String, nullable=False))
     observaciones: Optional[str]           = Field(default=None)
 
 

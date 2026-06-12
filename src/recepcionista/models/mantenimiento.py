@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 
+from sqlalchemy import Column, String
 from sqlmodel import Field, Relationship, SQLModel
 
 from models.enums import EstadoMantenimiento
@@ -17,7 +18,7 @@ class MantenimientoBase(SQLModel):
     fecha_inicio: datetime
     fecha_fin: Optional[datetime]     = Field(default=None)
     descripcion: str
-    estado: EstadoMantenimiento
+    estado: EstadoMantenimiento = Field(sa_column=Column(String, nullable=False))
 
 
 class Mantenimiento(MantenimientoBase, table=True):

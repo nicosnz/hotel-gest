@@ -54,7 +54,7 @@ class CheckoutService:
 
     async def realizar_checkout(self, dto: CheckoutDTO) -> CheckoutConfirmadoDTO:
         reserva = await self._obtener_reserva_en_checkin(dto.reserva_id)
-        habitacion = await self._obtener_habitacion(reserva.habitacion_id)
+        habitacion = reserva.habitacion
 
         costo_hospedaje = await self._calcular_costo_hospedaje(reserva)
         total_consumos = await self._calcular_total_consumos(reserva.id)
@@ -88,21 +88,15 @@ class CheckoutService:
     # ------------------------------------------------------------------
 
     async def _obtener_reserva_en_checkin(self, reserva_id: uuid.UUID) -> Reserva:
-        reserva = await self._reserva_repo.get_by_id(reserva_id)
+        reserva = await self._reserva_repo.get_by_id_with_habitacion(reserva_id)
         if not reserva:
             raise ValueError("No existe una reserva con el ID indicado.")
         if reserva.estado != EstadoReserva.CHECKIN:
             raise ValueError(
                 "La reserva no tiene una estadía activa. "
-                f"Estado actual: {reserva.estado.value}."
+                f"Estado actual: {reserva.estado}."
             )
         return reserva
-
-    async def _obtener_habitacion(self, habitacion_id: uuid.UUID):
-        habitacion = await self._habitacion_repo.get_by_id(habitacion_id)
-        if not habitacion:
-            raise ValueError("No se encontró la habitación asociada a la reserva.")
-        return habitacion
 
     async def _calcular_costo_hospedaje(self, reserva: Reserva) -> Decimal:
         noches = (reserva.fecha_checkout_esperado - reserva.fecha_checkin_esperado).days
@@ -144,9 +138,9 @@ class CheckoutService:
             Pago(
                 reserva_id=reserva_id,
                 monto=monto,
-                concepto=ConceptoPago.HOSPEDAJE,
-                metodo_pago=metodo_pago,
-                estado=EstadoPago.PAGADO,
+                concepto=ConceptoPago.HOSPEDAJE.value,
+                metodo_pago=metodo_pago.value if hasattr(metodo_pago, 'value') else metodo_pago,
+                estado=EstadoPago.PAGADO.value,
             )
         )
 
@@ -154,13 +148,13 @@ class CheckoutService:
         self, reserva: Reserva, fecha_checkout_real: datetime
     ) -> None:
         await self._reserva_repo.update(reserva, {
-            "estado": EstadoReserva.FINALIZADA,
+            "estado": EstadoReserva.FINALIZADA.value,
             "fecha_checkout_real": fecha_checkout_real,
         })
 
     async def _liberar_habitacion(self, habitacion) -> None:
-        if habitacion.estado == EstadoHabitacion.DISPONIBLE:
+        if habitacion.estado == EstadoHabitacion.DISPONIBLE.value:
             return
         await self._habitacion_repo.update(habitacion, {
-            "estado": EstadoHabitacion.DISPONIBLE,
+            "estado": EstadoHabitacion.DISPONIBLE.value,
         })

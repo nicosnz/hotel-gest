@@ -59,7 +59,7 @@ class ReservaService:
         # ------------------------------------------------------------------
         # 2. Verificar que la habitación existe
         # ------------------------------------------------------------------
-        habitacion = await self._habitacion_repo.get_by_id(dto.habitacion_id)
+        habitacion = await self._habitacion_repo.get_by_id_with_tipo(dto.habitacion_id)
         if not habitacion:
             raise ValueError("La habitación indicada no existe.")
 
@@ -101,7 +101,7 @@ class ReservaService:
                 habitacion_id=dto.habitacion_id,
                 fecha_checkin_esperado=dto.fecha_checkin_esperado,
                 fecha_checkout_esperado=dto.fecha_checkout_esperado,
-                estado=EstadoReserva.CONFIRMADA,
+                estado=EstadoReserva.CONFIRMADA.value,
             )
         )
 
@@ -127,9 +127,9 @@ class ReservaService:
             Pago(
                 reserva_id=reserva.id,
                 monto=dto.monto_adelanto,
-                concepto=ConceptoPago.ADELANTO,
-                metodo_pago=dto.metodo_pago,
-                estado=EstadoPago.PAGADO,
+                concepto=ConceptoPago.ADELANTO.value,
+                metodo_pago=dto.metodo_pago.value if hasattr(dto.metodo_pago, 'value') else dto.metodo_pago,
+                estado=EstadoPago.PAGADO.value,
             )
         )
 
