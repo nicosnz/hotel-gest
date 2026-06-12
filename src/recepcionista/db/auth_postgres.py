@@ -9,7 +9,7 @@ async def create_auth_tables():
     from models.usuario import Usuario
     async with auth_engine.begin() as conn:
         await conn.run_sync(
-            Usuario.__table__.create,  # type: ignore[attr-defined]
+            Usuario.__table__.create, 
             checkfirst=True,
         )
 

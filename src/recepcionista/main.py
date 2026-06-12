@@ -14,7 +14,6 @@ from sqlmodel import select
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Redis
     cache.redis_client = Redis(host=config.REDIS_HOST, port=config.REDIS_PORT)
 
     # Auth DB: crear tabla y usuario inicial si no existe

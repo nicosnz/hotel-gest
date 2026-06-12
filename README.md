@@ -49,12 +49,8 @@ docker compose up -d --build
 - Ejecutar JMeter via Docker:
 
 ```bash
-docker run --rm `
-  -v "${PWD}/jmeter:/jmeter" `
-  justb4/jmeter `
-  -n -t /jmeter/test-plan.jmx `
-  -l /jmeter/results-all.jtl `
-  -e -o /jmeter/report
+Remove-Item -Force jmeter\*.jtl -ErrorAction SilentlyContinue; Remove-Item -Recurse -Force jmeter\report -ErrorAction SilentlyContinue; docker run --rm -v "${PWD}/jmeter:/jmeter" justb4/jmeter -n -t /jmeter/test-plan.jmx -l /jmeter/results-all.jtl -e -o /jmeter/report
+
 
 ```
 
