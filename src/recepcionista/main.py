@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
-
+from api.v1 import reservas
+from api.v1 import habitaciones
 from core import config
 from redis.asyncio import Redis
 import db.redis as cache
@@ -14,7 +15,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-
+app.include_router(reservas.router,prefix="/api/v1/reservas",tags=["reservas"])
+app.include_router(habitaciones.router,prefix="/api/v1/habitaciones",tags="habitaciones")
 @app.get("/api/v1/health")
 async def health():
     return {"status": "ok"}

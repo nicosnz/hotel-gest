@@ -1,18 +1,17 @@
 from __future__ import annotations
 
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 from decimal import Decimal
 
 from models import (
+    ConceptoPago,
     EstadoPago,
     EstadoReserva,
-    ConceptoPago,
     MetodoPago,
     Pago,
     Reserva,
-    ReservaHuesped,
 )
 from repositories import HabitacionRepository, PagoRepository, ReservaRepository
 
@@ -23,11 +22,9 @@ class CrearReservaDTO:
     fecha_checkin_esperado: date
     fecha_checkout_esperado: date
     huesped_titular_id: uuid.UUID
-    huespedes_adicionales: list[uuid.UUID] = None
-
-    # Pago opcional — si viene, debe cubrir al menos el 50%
-    monto_adelanto: Decimal | None = None
-    metodo_pago: MetodoPago | None = None
+    monto_adelanto: Decimal
+    metodo_pago: MetodoPago
+    huespedes_adicionales: list[uuid.UUID] = field(default_factory=list)
 
 
 @dataclass
@@ -35,7 +32,7 @@ class ReservaConfirmadaDTO:
     reserva_id: uuid.UUID
     estado: EstadoReserva
     total_estimado: Decimal
-    pago_id: uuid.UUID | None
+    pago_id: uuid.UUID
     mensaje: str
 
 
@@ -51,7 +48,9 @@ class ReservaService:
         self._pago_repo = pago_repo
 
     async def crear_reserva(self, dto: CrearReservaDTO) -> ReservaConfirmadaDTO:
-        
+        # ------------------------------------------------------------------
+        # 1. Validar fechas
+        # ------------------------------------------------------------------
         if dto.fecha_checkout_esperado <= dto.fecha_checkin_esperado:
             raise ValueError(
                 "La fecha de check-out debe ser posterior a la fecha de check-in."
@@ -84,30 +83,25 @@ class ReservaService:
         total_estimado: Decimal = habitacion.tipo_habitacion.precio_por_noche * noches
 
         # ------------------------------------------------------------------
-        # 5. Validar pago mínimo si viene adelanto
+        # 5. Validar pago mínimo obligatorio (≥ 50%)
         # ------------------------------------------------------------------
         minimo_requerido = total_estimado * Decimal("0.50")
-
-        if dto.monto_adelanto is not None:
-            if dto.monto_adelanto < minimo_requerido:
-                raise ValueError(
-                    f"Se requiere un pago mínimo del 50% del total estimado "
-                    f"({minimo_requerido:.2f}) para confirmar la reserva. "
-                    f"Monto recibido: {dto.monto_adelanto:.2f}."
-                )
-            estado_reserva = EstadoReserva.CONFIRMADA
-        else:
-            estado_reserva = EstadoReserva.PENDIENTE
+        if dto.monto_adelanto < minimo_requerido:
+            raise ValueError(
+                f"Se requiere un pago mínimo del 50% del total estimado "
+                f"({minimo_requerido:.2f}) para confirmar la reserva. "
+                f"Monto recibido: {dto.monto_adelanto:.2f}."
+            )
 
         # ------------------------------------------------------------------
-        # 6. Crear la reserva
+        # 6. Crear la reserva en estado CONFIRMADA
         # ------------------------------------------------------------------
         reserva = await self._reserva_repo.create(
             Reserva(
                 habitacion_id=dto.habitacion_id,
                 fecha_checkin_esperado=dto.fecha_checkin_esperado,
                 fecha_checkout_esperado=dto.fecha_checkout_esperado,
-                estado=estado_reserva,
+                estado=EstadoReserva.CONFIRMADA,
             )
         )
 
@@ -119,8 +113,7 @@ class ReservaService:
             huesped_id=dto.huesped_titular_id,
             es_titular=True,
         )
-
-        for huesped_id in (dto.huespedes_adicionales or []):
+        for huesped_id in dto.huespedes_adicionales:
             await self._reserva_repo.agregar_huesped(
                 reserva=reserva,
                 huesped_id=huesped_id,
@@ -128,28 +121,22 @@ class ReservaService:
             )
 
         # ------------------------------------------------------------------
-        # 8. Registrar adelanto si corresponde
+        # 8. Registrar el adelanto
         # ------------------------------------------------------------------
-        pago = None
-        if dto.monto_adelanto is not None:
-            pago = await self._pago_repo.create(
-                Pago(
-                    reserva_id=reserva.id,
-                    monto=dto.monto_adelanto,
-                    concepto=ConceptoPago.ADELANTO,
-                    metodo_pago=dto.metodo_pago,
-                    estado=EstadoPago.PAGADO,
-                )
+        pago = await self._pago_repo.create(
+            Pago(
+                reserva_id=reserva.id,
+                monto=dto.monto_adelanto,
+                concepto=ConceptoPago.ADELANTO,
+                metodo_pago=dto.metodo_pago,
+                estado=EstadoPago.PAGADO,
             )
+        )
 
         return ReservaConfirmadaDTO(
             reserva_id=reserva.id,
             estado=reserva.estado,
             total_estimado=total_estimado,
-            pago_id=pago.id if pago else None,
-            mensaje=(
-                "Reserva confirmada con pago de adelanto registrado."
-                if pago
-                else "Reserva registrada en estado pendiente."
-            ),
+            pago_id=pago.id,
+            mensaje="Reserva confirmada con pago de adelanto registrado.",
         )
