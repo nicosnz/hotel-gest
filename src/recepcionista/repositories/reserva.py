@@ -60,6 +60,17 @@ class ReservaRepository(BaseRepository[Reserva]):
         await self.session.commit()
         await self.session.refresh(vinculo)
         return vinculo
+    
+    async def get_titular(
+        self, reserva_id: uuid.UUID
+    ) -> ReservaHuesped | None:
+        result = await self.session.execute(
+            select(ReservaHuesped).where(
+                ReservaHuesped.reserva_id == reserva_id,
+                ReservaHuesped.es_titular == True,  
+            )
+        )
+        return result.scalar_one_or_none()
 
     async def quitar_huesped(
         self, reserva_id: uuid.UUID, huesped_id: uuid.UUID
@@ -74,6 +85,16 @@ class ReservaRepository(BaseRepository[Reserva]):
         if vinculo:
             await self.session.delete(vinculo)
             await self.session.commit()
+            
+    async def get_servicios_consumidos(
+        self, reserva_id: uuid.UUID
+    ) -> list[ReservaServicio]:
+        result = await self.session.execute(
+            select(ReservaServicio).where(
+                ReservaServicio.reserva_id == reserva_id
+            )
+        )
+        return list(result.scalars().all())
 
     
 
