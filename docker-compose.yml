@@ -1,4 +1,24 @@
 services:
+  auth_db:
+    image: postgres:16
+    expose:
+      - "5432"
+    environment:
+      - POSTGRES_USER=${AUTH_DB_USER}
+      - POSTGRES_DB=${AUTH_DB_NAME}
+      - POSTGRES_PASSWORD=${AUTH_DB_PASSWORD}
+    volumes:
+      - auth_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $AUTH_DB_USER -d $AUTH_DB_NAME"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - hotel_private
+    restart: always
+
   postgres:
     image: postgres:16
     expose:
@@ -55,7 +75,9 @@ services:
       - hotel_private
     restart: always
     depends_on:
-      postgres: 
+      postgres:
+        condition: service_healthy
+      auth_db:
         condition: service_healthy
     env_file:
       - .env
@@ -82,6 +104,7 @@ services:
 
 volumes:
   hotel_data:
+  auth_data:
   static_volume:
   media_volume:
   

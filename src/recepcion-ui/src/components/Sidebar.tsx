@@ -1,4 +1,5 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
 
 const navItems = [
   {
@@ -47,6 +48,18 @@ const navItems = [
 ]
 
 export default function Sidebar() {
+  const { auth, logout } = useAuth()
+  const navigate = useNavigate()
+
+  function handleLogout() {
+    logout()
+    navigate('/login', { replace: true })
+  }
+
+  const initials = auth.nombre
+    ? `${auth.nombre[0]}${auth.apellido?.[0] ?? ''}`.toUpperCase()
+    : '?'
+
   return (
     <aside style={{
       width: 'var(--sidebar-width)',
@@ -110,32 +123,77 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      {/* Footer */}
+      {/* Footer: usuario + logout */}
       <div style={{
-        padding: '16px 20px',
+        padding: '12px 10px',
         borderTop: '1px solid rgba(255,255,255,0.07)',
         display: 'flex',
-        alignItems: 'center',
-        gap: 10,
+        flexDirection: 'column',
+        gap: 4,
       }}>
         <div style={{
-          width: 32,
-          height: 32,
-          borderRadius: '50%',
-          background: '#334155',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
+          gap: 10,
+          padding: '8px 10px',
+          borderRadius: 8,
         }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-            <circle cx="12" cy="7" r="4"/>
+          <div style={{
+            width: 32,
+            height: 32,
+            borderRadius: '50%',
+            background: 'var(--accent)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 12,
+            fontWeight: 700,
+            color: '#fff',
+            flexShrink: 0,
+          }}>
+            {initials}
+          </div>
+          <div style={{ overflow: 'hidden' }}>
+            <div style={{ color: '#fff', fontSize: 13, fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {auth.nombre} {auth.apellido}
+            </div>
+            <div style={{ color: 'var(--sidebar-text)', fontSize: 11 }}>{auth.username}</div>
+          </div>
+        </div>
+
+        <button
+          onClick={handleLogout}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            padding: '9px 12px',
+            borderRadius: 8,
+            border: 'none',
+            background: 'transparent',
+            color: 'var(--sidebar-text)',
+            fontSize: 14,
+            fontWeight: 500,
+            cursor: 'pointer',
+            width: '100%',
+            transition: 'background 0.15s, color 0.15s',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.background = 'rgba(220,38,38,0.15)'
+            e.currentTarget.style.color = '#fca5a5'
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.background = 'transparent'
+            e.currentTarget.style.color = 'var(--sidebar-text)'
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
           </svg>
-        </div>
-        <div>
-          <div style={{ color: '#fff', fontSize: 13, fontWeight: 500 }}>Recepcionista</div>
-          <div style={{ color: 'var(--sidebar-text)', fontSize: 11 }}>recepcion@hotel.com</div>
-        </div>
+          Cerrar sesión
+        </button>
       </div>
     </aside>
   )
