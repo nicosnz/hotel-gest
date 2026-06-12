@@ -41,8 +41,49 @@ services:
     env_file:
       - .env
     restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - static_volume:/app/staticfiles  
+      - media_volume:/app/media
+  recepcionista:
+    build: ./src/recepcionista
+    expose:
+      - "8000"
+    networks:
+      - hotel_private
+    restart: always
+    depends_on:
+      postgres: 
+        condition: service_healthy
+    env_file:
+      - .env
+  proxy:
+    image: nginx:1.23.3
+    ports:
+      - "80:80"
+    networks:
+      - hotel_private
+      - hotel_public
+    restart: always
+    depends_on:
+      recepcionista: 
+        condition: service_healthy
+      admin:
+        condition: service_started
+    volumes:
+      - ./server-config:/etc/nginx/conf.d
+      - static_volume:/app/staticfiles  
+      - media_volume:/app/media
+    
+  
 volumes:
   hotel_data:
+  static_volume:
+  media_volume: 
 networks:
   hotel_private:
     internal: true
+  hotel_public:
+    internal: false

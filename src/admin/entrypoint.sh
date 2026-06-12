@@ -15,6 +15,6 @@ else:
     print('Superusuario ya existe')
 "
 
-exec gunicorn config.wsgi:application \
+exec gunicorn core.wsgi:application \
      --bind 0.0.0.0:8000 \
      --workers 3

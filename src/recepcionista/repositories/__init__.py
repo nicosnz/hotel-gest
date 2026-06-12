@@ -1,13 +1,13 @@
-from .base import BaseRepository
-from .rol import RolRepository
-from .empleado import EmpleadoRepository
-from .huesped import HuespedRepository
-from .tipo_habitacion import TipoHabitacionRepository
-from .habitacion import HabitacionRepository
-from .reserva import ReservaRepository
-from .pago import PagoRepository
-from .servicio import ServicioRepository
-from .mantenimiento import MantenimientoRepository
+from repositories.base import BaseRepository
+from repositories.rol import RolRepository
+from repositories.empleado import EmpleadoRepository
+from repositories.huesped import HuespedRepository
+from repositories.tipo_habitacion import TipoHabitacionRepository
+from repositories.habitacion import HabitacionRepository
+from repositories.reserva import ReservaRepository
+from repositories.pago import PagoRepository
+from repositories.servicio import ServicioRepository
+from repositories.mantenimiento import MantenimientoRepository
 
 __all__ = [
     "BaseRepository",

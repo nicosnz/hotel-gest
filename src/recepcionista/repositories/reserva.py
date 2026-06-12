@@ -2,6 +2,7 @@ import uuid
 from datetime import date
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 from sqlmodel import select
 
 from models import (
@@ -10,12 +11,32 @@ from models import (
     ReservaServicio,
     EstadoReserva,
 )
-from base import BaseRepository
+from repositories.base import BaseRepository
 
 
 class ReservaRepository(BaseRepository[Reserva]):
     def __init__(self, session: AsyncSession) -> None:
         super().__init__(Reserva, session)
+
+    def _with_details(self):
+        return (
+            select(Reserva)
+            .options(
+                selectinload(Reserva.habitacion),
+                selectinload(Reserva.reserva_huespedes).selectinload(ReservaHuesped.huesped),
+                selectinload(Reserva.reserva_servicios).selectinload(ReservaServicio.servicio),
+            )
+        )
+
+    async def get_all_with_details(self) -> list[Reserva]:
+        result = await self.session.execute(self._with_details())
+        return list(result.scalars().all())
+
+    async def get_by_id_with_details(self, reserva_id: uuid.UUID) -> Reserva | None:
+        result = await self.session.execute(
+            self._with_details().where(Reserva.id == reserva_id)
+        )
+        return result.scalar_one_or_none()
 
     async def get_by_estado(self, estado: EstadoReserva) -> list[Reserva]:
         result = await self.session.execute(

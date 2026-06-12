@@ -1,13 +1,11 @@
-from __future__ import annotations
-
 import uuid
 from datetime import datetime
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from .reserva_huesped import ReservaHuesped
+    from models.reserva_huesped import ReservaHuesped
 
 
 class HuespedBase(SQLModel):
@@ -27,4 +25,4 @@ class Huesped(HuespedBase, table=True):
     creado_en: datetime      = Field(default_factory=datetime.utcnow)
     actualizado_en: datetime = Field(default_factory=datetime.utcnow)
 
-    reserva_huespedes: list["ReservaHuesped"] = Relationship(back_populates="huesped")
+    reserva_huespedes: List["ReservaHuesped"] = Relationship(back_populates="huesped")

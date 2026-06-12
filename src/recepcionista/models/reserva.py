@@ -1,18 +1,16 @@
-from __future__ import annotations
-
 import uuid
 from datetime import date, datetime
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 from sqlmodel import Field, Relationship, SQLModel
 
-from .enums import EstadoReserva
+from models.enums import EstadoReserva
 
 if TYPE_CHECKING:
-    from .habitacion import Habitacion
-    from .reserva_huesped import ReservaHuesped
-    from .pago import Pago
-    from .reserva_servicio import ReservaServicio
+    from models.habitacion import Habitacion
+    from models.reserva_huesped import ReservaHuesped
+    from models.pago import Pago
+    from models.reserva_servicio import ReservaServicio
 
 
 class ReservaBase(SQLModel):
@@ -35,6 +33,6 @@ class Reserva(ReservaBase, table=True):
     actualizado_en: datetime = Field(default_factory=datetime.utcnow)
 
     habitacion: Optional["Habitacion"]          = Relationship(back_populates="reservas")
-    reserva_huespedes: list["ReservaHuesped"]   = Relationship(back_populates="reserva")
-    pagos: list["Pago"]                         = Relationship(back_populates="reserva")
-    reserva_servicios: list["ReservaServicio"]  = Relationship(back_populates="reserva")
+    reserva_huespedes: List["ReservaHuesped"]   = Relationship(back_populates="reserva")
+    pagos: List["Pago"]                         = Relationship(back_populates="reserva")
+    reserva_servicios: List["ReservaServicio"]  = Relationship(back_populates="reserva")

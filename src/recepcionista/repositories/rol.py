@@ -1,8 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
-from app.models import Rol
-from .base import BaseRepository
+from models import Rol
+from repositories.base import BaseRepository
 
 
 class RolRepository(BaseRepository[Rol]):

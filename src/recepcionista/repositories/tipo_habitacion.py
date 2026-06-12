@@ -1,8 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
-from app.models import TipoHabitacion
-from .base import BaseRepository
+from models import TipoHabitacion
+from repositories.base import BaseRepository
 
 
 class TipoHabitacionRepository(BaseRepository[TipoHabitacion]):

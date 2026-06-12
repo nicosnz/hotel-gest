@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import uuid
 from datetime import datetime
 from decimal import Decimal
@@ -8,8 +6,8 @@ from typing import TYPE_CHECKING, Optional
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from .reserva import Reserva
-    from .servicio import Servicio
+    from models.reserva import Reserva
+    from models.servicio import Servicio
 
 
 class ReservaServicioBase(SQLModel):

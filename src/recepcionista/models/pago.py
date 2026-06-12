@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import uuid
 from datetime import datetime
 from decimal import Decimal
@@ -7,10 +5,10 @@ from typing import TYPE_CHECKING, Optional
 
 from sqlmodel import Field, Relationship, SQLModel
 
-from .enums import ConceptoPago, EstadoPago, MetodoPago
+from models.enums import ConceptoPago, EstadoPago, MetodoPago
 
 if TYPE_CHECKING:
-    from .reserva import Reserva
+    from models.reserva import Reserva
 
 
 class PagoBase(SQLModel):

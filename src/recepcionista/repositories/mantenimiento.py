@@ -3,8 +3,8 @@ import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
-from app.models import Mantenimiento, EstadoMantenimiento
-from .base import BaseRepository
+from models import Mantenimiento, EstadoMantenimiento
+from repositories.base import BaseRepository
 
 
 class MantenimientoRepository(BaseRepository[Mantenimiento]):

@@ -1,8 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
-from app.models import Huesped
-from .base import BaseRepository
+from models import Huesped
+from repositories.base import BaseRepository
 
 
 class HuespedRepository(BaseRepository[Huesped]):

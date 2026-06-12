@@ -2,7 +2,7 @@
 # primero los que no dependen de nadie, último los que dependen de varios.
 # Este archivo es el único que el resto del proyecto necesita importar.
 
-from .enums import (
+from models.enums import (
     ConceptoPago,
     EstadoHabitacion,
     EstadoMantenimiento,
@@ -11,17 +11,17 @@ from .enums import (
     MetodoPago,
 )
 
-from .rol import Rol, RolBase
-from .empleado import Empleado, EmpleadoBase
-from .huesped import Huesped, HuespedBase
-from .tipo_habitacion import TipoHabitacion, TipoHabitacionBase
-from .habitacion import Habitacion, HabitacionBase
-from .reserva import Reserva, ReservaBase
-from .reserva_huesped import ReservaHuesped, ReservaHuespedBase
-from .pago import Pago, PagoBase
-from .servicio import Servicio, ServicioBase
-from .reserva_servicio import ReservaServicio, ReservaServicioBase
-from .mantenimiento import Mantenimiento, MantenimientoBase
+from models.rol import Rol, RolBase
+from models.empleado import Empleado, EmpleadoBase
+from models.huesped import Huesped, HuespedBase
+from models.tipo_habitacion import TipoHabitacion, TipoHabitacionBase
+from models.habitacion import Habitacion, HabitacionBase
+from models.reserva import Reserva, ReservaBase
+from models.reserva_huesped import ReservaHuesped, ReservaHuespedBase
+from models.pago import Pago, PagoBase
+from models.servicio import Servicio, ServicioBase
+from models.reserva_servicio import ReservaServicio, ReservaServicioBase
+from models.mantenimiento import Mantenimiento, MantenimientoBase
 
 __all__ = [
     # enums

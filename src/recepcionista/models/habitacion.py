@@ -1,17 +1,15 @@
-from __future__ import annotations
-
 import uuid
 from datetime import datetime
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 from sqlmodel import Field, Relationship, SQLModel
 
-from .enums import EstadoHabitacion
+from models.enums import EstadoHabitacion
 
 if TYPE_CHECKING:
-    from .tipo_habitacion import TipoHabitacion
-    from .reserva import Reserva
-    from .mantenimiento import Mantenimiento
+    from models.tipo_habitacion import TipoHabitacion
+    from models.reserva import Reserva
+    from models.mantenimiento import Mantenimiento
 
 
 class HabitacionBase(SQLModel):
@@ -30,5 +28,5 @@ class Habitacion(HabitacionBase, table=True):
     actualizado_en: datetime = Field(default_factory=datetime.utcnow)
 
     tipo_habitacion: Optional["TipoHabitacion"]  = Relationship(back_populates="habitaciones")
-    reservas: list["Reserva"]                    = Relationship(back_populates="habitacion")
-    mantenimientos: list["Mantenimiento"]        = Relationship(back_populates="habitacion")
+    reservas: List["Reserva"]                    = Relationship(back_populates="habitacion")
+    mantenimientos: List["Mantenimiento"]        = Relationship(back_populates="habitacion")

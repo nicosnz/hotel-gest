@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional
@@ -7,8 +5,8 @@ from typing import TYPE_CHECKING, Optional
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from .reserva import Reserva
-    from .huesped import Huesped
+    from models.reserva import Reserva
+    from models.huesped import Huesped
 
 
 class ReservaHuespedBase(SQLModel):

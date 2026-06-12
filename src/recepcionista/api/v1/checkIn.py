@@ -5,8 +5,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from models import EstadoReserva
-from repositories import ReservaRepository
+from models.reserva import EstadoReserva
+from repositories.reserva import ReservaRepository
 from services.reservas.checkIn import CheckinConfirmadoDTO, CheckinDTO, CheckinService
 from db.postgres import get_db
 

@@ -1,16 +1,14 @@
-from __future__ import annotations
-
 import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 
 from sqlmodel import Field, Relationship, SQLModel
 
-from .enums import EstadoMantenimiento
+from models.enums import EstadoMantenimiento
 
 if TYPE_CHECKING:
-    from .habitacion import Habitacion
-    from .empleado import Empleado
+    from models.habitacion import Habitacion
+    from models.empleado import Empleado
 
 
 class MantenimientoBase(SQLModel):

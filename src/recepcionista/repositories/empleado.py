@@ -1,8 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
-from app.models import Empleado
-from .base import BaseRepository
+from models import Empleado
+from repositories.base import BaseRepository
 
 
 class EmpleadoRepository(BaseRepository[Empleado]):

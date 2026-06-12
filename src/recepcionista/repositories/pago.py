@@ -3,8 +3,8 @@ import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
-from app.models import Pago, EstadoPago
-from .base import BaseRepository
+from models import Pago, EstadoPago
+from repositories.base import BaseRepository
 
 
 class PagoRepository(BaseRepository[Pago]):

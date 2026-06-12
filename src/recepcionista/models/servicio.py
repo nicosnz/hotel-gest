@@ -1,14 +1,12 @@
-from __future__ import annotations
-
 import uuid
 from datetime import datetime
 from decimal import Decimal
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from .reserva_servicio import ReservaServicio
+    from models.reserva_servicio import ReservaServicio
 
 
 class ServicioBase(SQLModel):
@@ -26,4 +24,4 @@ class Servicio(ServicioBase, table=True):
     creado_en: datetime      = Field(default_factory=datetime.utcnow)
     actualizado_en: datetime = Field(default_factory=datetime.utcnow)
 
-    reserva_servicios: list["ReservaServicio"] = Relationship(back_populates="servicio")
+    reserva_servicios: List["ReservaServicio"] = Relationship(back_populates="servicio")

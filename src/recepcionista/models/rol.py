@@ -1,13 +1,11 @@
-from __future__ import annotations
-
 import uuid
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from .empleado import Empleado
+    from models.empleado import Empleado
 
 
 class RolBase(SQLModel):
@@ -22,4 +20,4 @@ class Rol(RolBase, table=True):
     creado_en: datetime       = Field(default_factory=datetime.utcnow)
     actualizado_en: datetime  = Field(default_factory=datetime.utcnow)
 
-    empleados: list["Empleado"] = Relationship(back_populates="rol")
+    empleados: List["Empleado"] = Relationship(back_populates="rol")
