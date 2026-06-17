@@ -1,0 +1,116 @@
+services:
+  auth_db:
+    image: postgres:16
+    expose:
+      - "5432"
+    environment:
+      - POSTGRES_USER=${AUTH_DB_USER}
+      - POSTGRES_DB=${AUTH_DB_NAME}
+      - POSTGRES_PASSWORD=${AUTH_DB_PASSWORD}
+    volumes:
+      - auth_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $AUTH_DB_USER -d $AUTH_DB_NAME"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - hotel_private
+    restart: always
+
+  postgres:
+    image: postgres:16
+    expose:
+      - "5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - hotel_data:/var/lib/postgresql/data
+      - ./db-desing:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - hotel_private
+    restart: always
+  cache:
+    image: redis:8.4-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli","ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - hotel_private
+    restart: always
+    expose:
+      - "6379"
+  admin:
+    build: ./src/admin
+    expose:
+      - "8000"
+    networks:
+      - hotel_private
+    env_file:
+      - .env
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - static_volume:/app/staticfiles  
+      - media_volume:/app/media
+  recepcionista:
+    build: ./src/recepcionista
+    expose:
+      - "8000"
+    networks:
+      - hotel_private
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+      auth_db:
+        condition: service_healthy
+    env_file:
+      - .env
+  proxy:
+    build: ./src/recepcion-ui
+    ports:
+      - "80:80"
+    networks:
+      - hotel_private
+      - hotel_public
+    restart: always
+    depends_on:
+      recepcionista:
+        condition: service_healthy
+      admin:
+        condition: service_started
+    volumes:
+      - ./server-config:/etc/nginx/conf.d
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+
+  
+
+
+volumes:
+  hotel_data:
+  auth_data:
+  static_volume:
+  media_volume:
+  
+networks:
+  hotel_private:
+    internal: true
+  hotel_public:
+    internal: false
+  
